@@ -303,6 +303,9 @@ DEMO_PROMPTS = [
 
 
 def main():
+    from license_guard import verify_license, print_banner
+    verify_license()
+    print_banner("AI Governance Framework")
     try:
         sys.stdout.reconfigure(encoding="utf-8")
     except Exception:
