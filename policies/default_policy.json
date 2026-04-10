@@ -1,0 +1,152 @@
+{
+  "policy_name": "Enterprise AI Tool Usage Policy",
+  "version": "1.0",
+  "description": "Default governance policy for ChatGPT, Claude, Gemini, Copilot, and other GenAI tools in enterprise environments.",
+
+  "data_classification_rules": [
+    {
+      "id": "DC-001",
+      "name": "PII Detection",
+      "description": "Block prompts containing personally identifiable information",
+      "severity": "CRITICAL",
+      "patterns": [
+        "\\b\\d{3}-\\d{2}-\\d{4}\\b",
+        "\\b\\d{9}\\b",
+        "\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b",
+        "\\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13})\\b",
+        "\\b\\d{3}[\\s.-]?\\d{3}[\\s.-]?\\d{4}\\b"
+      ],
+      "action": "BLOCK",
+      "remediation": "Remove PII before submitting to AI tool. Use data anonymization."
+    },
+    {
+      "id": "DC-002",
+      "name": "Source Code Leak Prevention",
+      "description": "Detect proprietary source code, API keys, and internal code patterns",
+      "severity": "HIGH",
+      "patterns": [
+        "(?:api[_-]?key|secret|password|token)\\s*[=:]\\s*['\"][A-Za-z0-9]{16,}",
+        "-----BEGIN (?:RSA |EC |DSA )?PRIVATE KEY-----",
+        "AKIA[A-Z0-9]{16}",
+        "(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9_]{36,}",
+        "sk-[A-Za-z0-9]{32,}",
+        "xox[bprs]-[A-Za-z0-9-]+"
+      ],
+      "action": "BLOCK",
+      "remediation": "Strip credentials before pasting. Use environment variable references."
+    },
+    {
+      "id": "DC-003",
+      "name": "Internal Document Detection",
+      "description": "Detect content from internal/confidential documents",
+      "severity": "HIGH",
+      "patterns": [
+        "(?i)\\b(CONFIDENTIAL|INTERNAL ONLY|RESTRICTED|TOP SECRET|DO NOT DISTRIBUTE)\\b",
+        "(?i)\\b(proprietary|trade secret|attorney[- ]client|legally privileged)\\b"
+      ],
+      "action": "WARN",
+      "remediation": "Rephrase the query without including classified content."
+    },
+    {
+      "id": "DC-004",
+      "name": "Customer Data Detection",
+      "description": "Detect customer-specific data being shared with AI tools",
+      "severity": "CRITICAL",
+      "patterns": [
+        "(?i)\\b(customer[_ ]?id|account[_ ]?number|order[_ ]?id|invoice[_ ]?number)\\s*[:=]\\s*\\w+",
+        "(?i)\\b(patient|medical record|diagnosis|prescription)\\b",
+        "(?i)\\b(HIPAA|PHI|protected health information)\\b"
+      ],
+      "action": "BLOCK",
+      "remediation": "Use synthetic/anonymized data when asking AI for help with customer scenarios."
+    },
+    {
+      "id": "DC-005",
+      "name": "Financial Data Detection",
+      "description": "Detect financial metrics, revenue data, and insider information",
+      "severity": "CRITICAL",
+      "patterns": [
+        "(?i)\\b(revenue|earnings|profit|EBITDA|ARR|MRR)\\s*(?:is|was|=|:)\\s*\\$?[\\d,.]+[MBK]?",
+        "(?i)\\b(merger|acquisition|IPO|funding round)\\s+(?:with|of|for)\\s+[A-Z]",
+        "(?i)\\bnon[- ]?public\\s+(?:financial|information|data)\\b"
+      ],
+      "action": "BLOCK",
+      "remediation": "Never share actual financial figures with AI tools. Use placeholder numbers."
+    }
+  ],
+
+  "connector_rules": [
+    {
+      "id": "CR-001",
+      "name": "Block Third-Party Plugins",
+      "description": "Enterprise ChatGPT should not use unvetted third-party plugins/GPTs",
+      "check": "no_unvetted_plugins",
+      "action": "BLOCK"
+    },
+    {
+      "id": "CR-002",
+      "name": "Disable Web Browsing for Sensitive Contexts",
+      "description": "AI tools should not browse internal URLs or intranet",
+      "check": "no_internal_url_browsing",
+      "action": "WARN"
+    },
+    {
+      "id": "CR-003",
+      "name": "File Upload Scanning",
+      "description": "Files uploaded to AI tools must be scanned for sensitive content first",
+      "check": "file_content_scan",
+      "action": "SCAN"
+    },
+    {
+      "id": "CR-004",
+      "name": "Code Interpreter Restrictions",
+      "description": "Code interpreter should not execute code that makes external network calls",
+      "check": "no_external_network_in_interpreter",
+      "action": "BLOCK"
+    }
+  ],
+
+  "rbac_rules": {
+    "roles": [
+      {
+        "name": "basic_user",
+        "description": "Standard employee — can use AI for general productivity",
+        "allowed_tools": ["ChatGPT", "Claude", "Gemini"],
+        "allowed_models": ["gpt-4o", "claude-sonnet", "gemini-pro"],
+        "data_classification_max": "INTERNAL",
+        "daily_request_limit": 100,
+        "file_upload_allowed": false,
+        "code_generation_allowed": true
+      },
+      {
+        "name": "power_user",
+        "description": "Engineering/data teams — elevated access with code generation",
+        "allowed_tools": ["ChatGPT", "Claude", "Gemini", "GitHub Copilot"],
+        "allowed_models": ["gpt-4o", "claude-opus", "claude-sonnet", "gemini-pro"],
+        "data_classification_max": "INTERNAL",
+        "daily_request_limit": 500,
+        "file_upload_allowed": true,
+        "code_generation_allowed": true
+      },
+      {
+        "name": "admin",
+        "description": "Security/IT admins — full access for policy testing and governance",
+        "allowed_tools": ["ChatGPT", "Claude", "Gemini", "GitHub Copilot", "Custom Models"],
+        "allowed_models": ["*"],
+        "data_classification_max": "CONFIDENTIAL",
+        "daily_request_limit": -1,
+        "file_upload_allowed": true,
+        "code_generation_allowed": true
+      }
+    ]
+  },
+
+  "audit_settings": {
+    "log_all_prompts": true,
+    "log_responses": false,
+    "retention_days": 90,
+    "alert_on_block": true,
+    "alert_on_warn_threshold": 5,
+    "export_format": "json"
+  }
+}
