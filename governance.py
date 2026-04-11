@@ -13,7 +13,7 @@ Components:
   4. Usage analytics — per-user, per-tool, per-department aggregation
   5. Flask dashboard + REST API
 
-Author: Adithya Vasamsetti (CyberEnthusiastic)
+Author: Mohith Vasamsetti (CyberEnthusiastic)
 License: MIT
 """
 import argparse
