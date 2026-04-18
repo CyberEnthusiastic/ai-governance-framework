@@ -1,0 +1,45 @@
+
+  AI Governance Framework v1.0
+  Copyright (c) 2026 Mohith Vasamsetti
+  https://github.com/CyberEnthusiastic
+  Licensed for personal use only. See LICENSE for terms.
+
+============================================================
+  [AI Tool Security Governance Framework v1.0]
+============================================================
+  Policy: Enterprise AI Tool Usage Policy
+  Rules : 5 data classification rules
+  Roles : 3 RBAC roles
+
+  [91mBLOCKED [0m  user=jane.doe       tool=ChatGPT      violations=1
+    [91m[CRITICAL][0m DC-001 PII Detection: 123******89
+  [92mALLOWED [0m  user=dev.smith      tool=Claude       violations=0
+  [91mBLOCKED [0m  user=cfo.jones      tool=ChatGPT      violations=2
+    [93m[HIGH][0m DC-003 Internal Document Detection: CON*******AL
+    [91m[CRITICAL][0m DC-005 Financial Data Detection: rev*************2M
+  [92mALLOWED [0m  user=intern.kim     tool=ChatGPT      violations=0
+  [91mBLOCKED [0m  user=hr.admin       tool=Gemini       violations=4
+    [91m[CRITICAL][0m DC-004 Customer Data Detection: pa***
+    [91m[CRITICAL][0m DC-004 Customer Data Detection: dia****is
+    [91m[CRITICAL][0m DC-004 Customer Data Detection: Pa***
+    [91m[CRITICAL][0m DC-004 Customer Data Detection: Med*********rd
+  [92mALLOWED [0m  user=dev.patel      tool=Claude       violations=0
+  [91mBLOCKED [0m  user=dev.newbie     tool=GitHub Copilot violations=1
+    [93m[HIGH][0m DC-002 Source Code Leak Prevention: ---**************************--
+  [91mBLOCKED [0m  user=legal.chen     tool=ChatGPT      violations=2
+    [91m[CRITICAL][0m DC-005 Financial Data Detection: mer******** A
+    [91m[CRITICAL][0m DC-005 Financial Data Detection: Non***************al
+  [92mALLOWED [0m  user=sre.garcia     tool=Claude       violations=0
+  [91mBLOCKED [0m  user=sales.rep      tool=ChatGPT      violations=2
+    [91m[CRITICAL][0m DC-001 PII Detection: sar*******************om
+    [91m[CRITICAL][0m DC-001 PII Detection: 555*******09
+============================================================
+  Total prompts : 10
+  BLOCKED       : 6
+  WARNED        : 0
+  ALLOWED       : 4
+  Block rate    : 60.0%
+============================================================
+
+[+] JSON report: reports/governance_report.json
+[+] HTML report: reports/governance_report.html
